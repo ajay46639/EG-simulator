@@ -295,6 +295,12 @@ export function App() {
   const { isAuthenticated } = useAuthStore();
   const theme = useProjectStore((s) => s.theme);
 
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.toggle('dark', theme === 'dark');
+    }
+  }, [theme]);
+
   if (!isAuthenticated) {
     return <AccessGate theme={theme} />;
   }

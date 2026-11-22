@@ -38,7 +38,8 @@ export async function verifySpecialKey(enteredKey: string): Promise<VerifyKeyRes
       body: JSON.stringify({ key: cleanKey }),
     });
 
-    if (res.ok) {
+    const contentType = res.headers.get('content-type') || '';
+    if (res.ok && contentType.includes('application/json')) {
       const data = await res.json();
       if (typeof data.valid === 'boolean') {
         return {
@@ -54,7 +55,7 @@ export async function verifySpecialKey(enteredKey: string): Promise<VerifyKeyRes
 
   // Client-side verification
   const expectedKey = getActiveAccessKey();
-  const isValid = cleanKey === expectedKey || cleanKey === 'ENGIVIEW-2026-VIP';
+  const isValid = cleanKey === expectedKey;
 
   return {
     valid: isValid,
@@ -159,8 +160,7 @@ export function getSavedSession(): AuthSession | null {
     // Check if the key was changed by the admin
     const currentKey = getActiveAccessKey();
     const currentHash = hashKey(currentKey);
-    const legacyHash = hashKey('ENGIVIEW-2026-VIP');
-    if (session.keyHash !== currentHash && session.keyHash !== legacyHash) {
+    if (session.keyHash !== currentHash) {
       // Key was rotated! Invalidate old session.
       removeStorageItem(AUTH_STORAGE_KEY);
       return null;

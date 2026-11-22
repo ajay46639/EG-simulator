@@ -27,7 +27,7 @@ export default defineConfig(({ mode }) => {
                     'EG-SIM-2026-VIP'
                   ).trim();
                   const entered = (parsed.key || '').trim();
-                  const valid = entered === configuredKey || entered === 'ENGIVIEW-2026-VIP';
+                  const valid = entered === configuredKey;
                   res.setHeader('Content-Type', 'application/json');
                   res.end(JSON.stringify({ valid }));
                 } catch {

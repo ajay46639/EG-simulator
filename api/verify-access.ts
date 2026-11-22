@@ -20,11 +20,20 @@ export default function handler(req: any, res: any) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { key } = req.body || {};
+  // Parse body safely whether parsed by Vercel or raw string
+  let body = req.body;
+  if (typeof body === 'string') {
+    try {
+      body = JSON.parse(body);
+    } catch {}
+  }
+
+  const { key } = body || {};
   const configuredKey = (
-    process.env.ACCESS_KEY ||
     process.env.VITE_ACCESS_KEY ||
+    process.env.ACCESS_KEY ||
     process.env.VITE_SPECIAL_KEY ||
+    process.env.SPECIAL_KEY ||
     'EG-SIM-2026-VIP'
   ).trim();
 
@@ -32,7 +41,7 @@ export default function handler(req: any, res: any) {
     return res.status(400).json({ valid: false, message: 'Access key is required' });
   }
 
-  const isValid = key.trim() === configuredKey || key.trim() === 'ENGIVIEW-2026-VIP';
+  const isValid = key.trim() === configuredKey;
 
   return res.status(200).json({
     valid: isValid,

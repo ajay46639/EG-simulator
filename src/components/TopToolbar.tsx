@@ -103,7 +103,7 @@ export const TopToolbar: React.FC<TopToolbarProps> = ({ frontSvgRef, sheetSvgRef
             <Box className="w-4 h-4" />
           </div>
           <span className="hidden sm:inline">EG SIMULATOR</span>
-          <span className="text-[10px] font-mono px-1 py-0.5 rounded bg-blue-500/15 text-blue-500 hidden lg:inline">v4</span>
+          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-600 dark:text-blue-400 font-semibold hidden lg:inline">v4 Beta</span>
         </div>
 
         <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-0.5 rounded-md border border-slate-200 dark:border-slate-700">

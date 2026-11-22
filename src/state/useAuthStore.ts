@@ -56,7 +56,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
       return { success: false, error: err };
     }
 
-    set({ isLoading: true, statusMessage: 'Verifying key & sending notification...', error: null });
+    set({ isLoading: true, statusMessage: 'Verifying...', error: null });
 
     // Step 1: Verify the special key
     const verification = await verifySpecialKey(cleanKey);

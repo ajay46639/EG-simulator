@@ -217,8 +217,8 @@ function createDefaultObject(category: ObjectCategory, count: number): Engineeri
 const initialObjects = PRESET_EXAMPLES[0].objects;
 
 export const useProjectStore = create<ProjectState>((set, get) => ({
-  projectName: 'EG SIMULATOR v4.0',
-  theme: 'dark',
+  projectName: 'EG SIMULATOR v4.0 Beta',
+  theme: 'light',
   workspaceTab: '4view',
   lengthUnit: 'mm',
   angleUnit: 'deg',

@@ -15,6 +15,7 @@ import {
 import { PRESET_EXAMPLES } from '../engineering/presets';
 
 export type MaximizedPanel = 'none' | '3d' | 'front' | 'top' | 'side';
+export type FocusView = 'none' | '3d' | 'front' | 'top' | 'side';
 
 interface HistorySnapshot {
   objects: EngineeringObject[];
@@ -35,6 +36,12 @@ interface ProjectState {
   maximizedPanel: MaximizedPanel;
   cameraResetTrigger: number;
 
+  // Fullscreen & Sidebar Visibility
+  showLeftSidebar: boolean;
+  showRightSidebar: boolean;
+  appFullscreen: boolean;
+  focusView: FocusView;
+
   past: HistorySnapshot[];
   future: HistorySnapshot[];
 
@@ -54,6 +61,14 @@ interface ProjectState {
   setInputMode: (m: InputMode) => void;
   setMaximizedPanel: (p: MaximizedPanel) => void;
   triggerCameraReset: () => void;
+
+  toggleLeftSidebar: () => void;
+  toggleRightSidebar: () => void;
+  setLeftSidebar: (show: boolean) => void;
+  setRightSidebar: (show: boolean) => void;
+  toggleAppFullscreen: () => void;
+  setAppFullscreen: (full: boolean) => void;
+  setFocusView: (view: FocusView) => void;
 
   addObject: (category: ObjectCategory) => void;
   updateObject: (id: string, updater: (obj: EngineeringObject) => EngineeringObject) => void;
@@ -229,6 +244,12 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   projectionSettings: DEFAULT_SETTINGS,
   maximizedPanel: 'none',
   cameraResetTrigger: 0,
+
+  showLeftSidebar: true,
+  showRightSidebar: true,
+  appFullscreen: false,
+  focusView: 'none',
+
   past: [],
   future: [],
 
@@ -253,6 +274,14 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   setInputMode: (inputMode) => set({ inputMode }),
   setMaximizedPanel: (maximizedPanel) => set({ maximizedPanel }),
   triggerCameraReset: () => set((s) => ({ cameraResetTrigger: s.cameraResetTrigger + 1 })),
+
+  toggleLeftSidebar: () => set((s) => ({ showLeftSidebar: !s.showLeftSidebar })),
+  toggleRightSidebar: () => set((s) => ({ showRightSidebar: !s.showRightSidebar })),
+  setLeftSidebar: (showLeftSidebar) => set({ showLeftSidebar }),
+  setRightSidebar: (showRightSidebar) => set({ showRightSidebar }),
+  toggleAppFullscreen: () => set((s) => ({ appFullscreen: !s.appFullscreen })),
+  setAppFullscreen: (appFullscreen) => set({ appFullscreen }),
+  setFocusView: (focusView) => set({ focusView }),
 
   addObject: (category) =>
     set((s) => {

@@ -11,7 +11,13 @@ import {
   Grid,
   LayoutGrid,
   LogOut,
+  Maximize,
+  Minimize,
   Moon,
+  PanelLeft,
+  PanelLeftClose,
+  PanelRight,
+  PanelRightClose,
   PlayCircle,
   Redo2,
   RotateCcw,
@@ -59,11 +65,27 @@ export const TopToolbar: React.FC<TopToolbarProps> = ({ frontSvgRef, sheetSvgRef
     newProject,
     exportProjectJSON,
     importProjectJSON,
+    showLeftSidebar,
+    toggleLeftSidebar,
+    showRightSidebar,
+    toggleRightSidebar,
+    appFullscreen,
+    toggleAppFullscreen,
   } = useProjectStore();
 
   const { user, logout } = useAuthStore();
   const [exportOpen, setExportOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleToggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+      if (!appFullscreen) toggleAppFullscreen();
+    } else {
+      document.exitFullscreen().catch(() => {});
+      if (appFullscreen) toggleAppFullscreen();
+    }
+  };
 
   const handleOpenFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -105,6 +127,15 @@ export const TopToolbar: React.FC<TopToolbarProps> = ({ frontSvgRef, sheetSvgRef
           <span className="hidden sm:inline">EG SIMULATOR</span>
           <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-600 dark:text-blue-400 font-semibold hidden lg:inline">v4 Beta</span>
         </div>
+
+        <button
+          onClick={toggleLeftSidebar}
+          className={`${btnCls} ${!showLeftSidebar ? 'bg-amber-100 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 font-semibold' : ''}`}
+          title={showLeftSidebar ? 'Hide Left Features Wall' : 'Show Left Features Wall'}
+        >
+          {showLeftSidebar ? <PanelLeftClose className="w-3.5 h-3.5" /> : <PanelLeft className="w-3.5 h-3.5" />}
+          <span className="hidden 2xl:inline">{showLeftSidebar ? 'Features' : 'Show Features'}</span>
+        </button>
 
         <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-0.5 rounded-md border border-slate-200 dark:border-slate-700">
           {tabs.map((t) => (
@@ -252,6 +283,23 @@ export const TopToolbar: React.FC<TopToolbarProps> = ({ frontSvgRef, sheetSvgRef
             </div>
           )}
         </div>
+
+        <button
+          onClick={toggleRightSidebar}
+          className={`${btnCls} ${!showRightSidebar ? 'bg-amber-100 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 font-semibold' : ''}`}
+          title={showRightSidebar ? 'Hide Right Parameters Wall' : 'Show Right Parameters Wall'}
+        >
+          {showRightSidebar ? <PanelRightClose className="w-3.5 h-3.5" /> : <PanelRight className="w-3.5 h-3.5" />}
+          <span className="hidden 2xl:inline">{showRightSidebar ? 'Params' : 'Show Params'}</span>
+        </button>
+
+        <button
+          onClick={handleToggleFullscreen}
+          className={`${btnCls} ${appFullscreen ? 'bg-blue-600 text-white shadow-sm' : ''}`}
+          title={appFullscreen ? 'Exit Full Screen' : 'Full Screen Platform (Zen Mode - Hide header)'}
+        >
+          {appFullscreen ? <Minimize className="w-3.5 h-3.5" /> : <Maximize className="w-3.5 h-3.5" />}
+        </button>
 
         <button onClick={toggleTheme} className={btnCls} title="Toggle Theme">
           {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}

@@ -16,6 +16,7 @@ import { PRESET_EXAMPLES } from '../engineering/presets';
 
 export type MaximizedPanel = 'none' | '3d' | 'front' | 'top' | 'side';
 export type FocusView = 'none' | '3d' | 'front' | 'top' | 'side';
+export type MobileViewTab = '3d' | 'front' | 'top' | 'side' | 'all';
 
 interface HistorySnapshot {
   objects: EngineeringObject[];
@@ -41,6 +42,7 @@ interface ProjectState {
   showRightSidebar: boolean;
   appFullscreen: boolean;
   focusView: FocusView;
+  mobileViewTab: MobileViewTab;
 
   past: HistorySnapshot[];
   future: HistorySnapshot[];
@@ -69,6 +71,7 @@ interface ProjectState {
   toggleAppFullscreen: () => void;
   setAppFullscreen: (full: boolean) => void;
   setFocusView: (view: FocusView) => void;
+  setMobileViewTab: (tab: MobileViewTab) => void;
 
   addObject: (category: ObjectCategory) => void;
   updateObject: (id: string, updater: (obj: EngineeringObject) => EngineeringObject) => void;
@@ -245,10 +248,11 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   maximizedPanel: 'none',
   cameraResetTrigger: 0,
 
-  showLeftSidebar: true,
-  showRightSidebar: true,
+  showLeftSidebar: typeof window !== 'undefined' ? window.innerWidth >= 1024 : true,
+  showRightSidebar: typeof window !== 'undefined' ? window.innerWidth >= 1280 : true,
   appFullscreen: false,
   focusView: 'none',
+  mobileViewTab: '3d',
 
   past: [],
   future: [],
@@ -282,6 +286,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   toggleAppFullscreen: () => set((s) => ({ appFullscreen: !s.appFullscreen })),
   setAppFullscreen: (appFullscreen) => set({ appFullscreen }),
   setFocusView: (focusView) => set({ focusView }),
+  setMobileViewTab: (mobileViewTab) => set({ mobileViewTab }),
 
   addObject: (category) =>
     set((s) => {

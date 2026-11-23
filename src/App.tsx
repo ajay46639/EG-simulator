@@ -14,7 +14,7 @@ import {
   RotateCcw,
   Sun,
 } from 'lucide-react';
-import { useProjectStore, MaximizedPanel } from './state/useProjectStore';
+import { useProjectStore, MaximizedPanel, MobileViewTab } from './state/useProjectStore';
 import { solveObject } from './solver/constraintSolver';
 import { buildObjectMesh } from './geometry/builders';
 import { getAnimationSteps } from './animations/stepEngine';
@@ -65,6 +65,8 @@ function MainWorkspace() {
     setAppFullscreen,
     focusView,
     setFocusView,
+    mobileViewTab,
+    setMobileViewTab,
   } = useProjectStore();
 
   const frontSvgRef = useRef<SVGSVGElement>(null);
@@ -316,8 +318,8 @@ function MainWorkspace() {
     return (
       <div className="fixed inset-0 z-50 flex flex-col bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-hidden select-none">
         {/* Floating Glass Control Pill */}
-        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-40 flex items-center gap-1.5 sm:gap-2 px-3.5 py-1.5 rounded-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 shadow-xl text-xs">
-          <span className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 border-r border-slate-200 dark:border-slate-700 pr-2.5">
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-40 flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 rounded-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 shadow-xl text-xs max-w-[96vw] overflow-x-auto">
+          <span className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 border-r border-slate-200 dark:border-slate-700 pr-2 shrink-0">
             <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
             {focusView === '3d'
               ? '3D Interactive Simulation'
@@ -451,7 +453,7 @@ function MainWorkspace() {
           {!showLeftSidebar && (
             <button
               onClick={toggleLeftSidebar}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-30 p-1.5 bg-white/90 dark:bg-slate-900/90 hover:bg-blue-600 hover:text-white border border-l-0 border-slate-300 dark:border-slate-700 rounded-r-md shadow-md text-slate-700 dark:text-slate-200 transition-all"
+              className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-30 p-1.5 bg-white/90 dark:bg-slate-900/90 hover:bg-blue-600 hover:text-white border border-l-0 border-slate-300 dark:border-slate-700 rounded-r-md shadow-md text-slate-700 dark:text-slate-200 transition-all"
               title="Show Left Features Wall"
             >
               <ChevronRight className="w-3.5 h-3.5" />
@@ -461,7 +463,7 @@ function MainWorkspace() {
           {!showRightSidebar && (
             <button
               onClick={toggleRightSidebar}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-30 p-1.5 bg-white/90 dark:bg-slate-900/90 hover:bg-blue-600 hover:text-white border border-r-0 border-slate-300 dark:border-slate-700 rounded-l-md shadow-md text-slate-700 dark:text-slate-200 transition-all"
+              className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-30 p-1.5 bg-white/90 dark:bg-slate-900/90 hover:bg-blue-600 hover:text-white border border-r-0 border-slate-300 dark:border-slate-700 rounded-l-md shadow-md text-slate-700 dark:text-slate-200 transition-all"
               title="Show Right Parameters Wall"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
@@ -479,7 +481,7 @@ function MainWorkspace() {
     <div className="h-screen w-screen flex flex-col bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 relative overflow-hidden select-none">
       {/* Platform Zen Fullscreen Floating Island Header */}
       {appFullscreen ? (
-        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 shadow-xl text-xs animate-in fade-in slide-in-from-top-2 duration-150">
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-40 flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 rounded-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 shadow-xl text-xs max-w-[96vw] overflow-x-auto animate-in fade-in slide-in-from-top-2 duration-150">
           <span className="font-bold text-slate-900 dark:text-white pr-2 border-r border-slate-200 dark:border-slate-700">
             EG SIMULATOR <span className="text-[10px] text-blue-500 font-mono">v4 Beta</span>
           </span>
@@ -553,27 +555,86 @@ function MainWorkspace() {
 
         <main className="flex-1 flex flex-col min-w-0 min-h-0 relative">
           {workspaceTab === '4view' && (
-            <div
-              className={`flex-1 min-h-0 grid gap-1 p-1 bg-slate-200 dark:bg-slate-950 ${
-                maximizedPanel === 'none' ? 'grid-cols-1 md:grid-cols-2 md:grid-rows-2' : 'grid-cols-1 grid-rows-1'
-              }`}
-            >
-              {isFirstAngle ? (
-                <>
-                  {frontPanel}
-                  {sidePanel}
-                  {topPanel}
-                  {threePanel}
-                </>
-              ) : (
-                <>
-                  {topPanel}
-                  {threePanel}
-                  {frontPanel}
-                  {sidePanel}
-                </>
-              )}
-            </div>
+            <>
+              {/* Mobile Viewport Layout (< md) */}
+              <div className="flex md:hidden flex-col flex-1 min-h-0 bg-slate-200 dark:bg-slate-950">
+                {/* Mobile View Switcher Pill Bar */}
+                <div className="flex items-center justify-between px-2 py-1.5 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shrink-0 gap-1 overflow-x-auto text-xs">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 pl-0.5 shrink-0">View:</span>
+                  <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg border border-slate-200 dark:border-slate-700 shrink-0">
+                    {[
+                      { id: '3d', label: '3D Simulation' },
+                      { id: 'front', label: 'Front' },
+                      { id: 'top', label: 'Top' },
+                      { id: 'side', label: 'Side' },
+                      { id: 'all', label: '4-Grid' },
+                    ].map((v) => (
+                      <button
+                        key={v.id}
+                        onClick={() => setMobileViewTab(v.id as MobileViewTab)}
+                        className={`px-2 py-0.5 rounded-md text-[11px] font-medium transition-colors ${
+                          mobileViewTab === v.id
+                            ? 'bg-blue-600 text-white shadow-sm'
+                            : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                        }`}
+                      >
+                        {v.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Mobile Active Viewport Display */}
+                <div className="flex-1 min-h-0 relative p-1 flex flex-col">
+                  {maximizedPanel !== 'none' ? (
+                    <>
+                      {maximizedPanel === '3d' && threePanel}
+                      {maximizedPanel === 'front' && frontPanel}
+                      {maximizedPanel === 'top' && topPanel}
+                      {maximizedPanel === 'side' && sidePanel}
+                    </>
+                  ) : (
+                    <>
+                      {mobileViewTab === '3d' && threePanel}
+                      {mobileViewTab === 'front' && frontPanel}
+                      {mobileViewTab === 'top' && topPanel}
+                      {mobileViewTab === 'side' && sidePanel}
+                      {mobileViewTab === 'all' && (
+                        <div className="flex-1 overflow-y-auto space-y-2 min-h-0">
+                          <div className="h-[280px] flex flex-col">{frontPanel}</div>
+                          <div className="h-[280px] flex flex-col">{topPanel}</div>
+                          <div className="h-[280px] flex flex-col">{sidePanel}</div>
+                          <div className="h-[280px] flex flex-col">{threePanel}</div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Desktop 2x2 Grid Viewport Layout (md:grid) */}
+              <div
+                className={`hidden md:grid flex-1 min-h-0 gap-1 p-1 bg-slate-200 dark:bg-slate-950 ${
+                  maximizedPanel === 'none' ? 'grid-cols-2 grid-rows-2' : 'grid-cols-1 grid-rows-1'
+                }`}
+              >
+                {isFirstAngle ? (
+                  <>
+                    {frontPanel}
+                    {sidePanel}
+                    {topPanel}
+                    {threePanel}
+                  </>
+                ) : (
+                  <>
+                    {topPanel}
+                    {threePanel}
+                    {frontPanel}
+                    {sidePanel}
+                  </>
+                )}
+              </div>
+            </>
           )}
 
           {workspaceTab === 'sheet' && (
@@ -611,7 +672,7 @@ function MainWorkspace() {
         {showSidebars && !showLeftSidebar && (
           <button
             onClick={toggleLeftSidebar}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-30 p-1.5 bg-white/90 dark:bg-slate-900/90 hover:bg-blue-600 hover:text-white border border-l-0 border-slate-300 dark:border-slate-700 rounded-r-md shadow-md text-slate-700 dark:text-slate-200 transition-all"
+            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-30 p-1.5 bg-white/90 dark:bg-slate-900/90 hover:bg-blue-600 hover:text-white border border-l-0 border-slate-300 dark:border-slate-700 rounded-r-md shadow-md text-slate-700 dark:text-slate-200 transition-all"
             title="Show Left Features Wall"
           >
             <ChevronRight className="w-3.5 h-3.5" />
@@ -621,7 +682,7 @@ function MainWorkspace() {
         {showSidebars && !showRightSidebar && (
           <button
             onClick={toggleRightSidebar}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-30 p-1.5 bg-white/90 dark:bg-slate-900/90 hover:bg-blue-600 hover:text-white border border-r-0 border-slate-300 dark:border-slate-700 rounded-l-md shadow-md text-slate-700 dark:text-slate-200 transition-all"
+            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-30 p-1.5 bg-white/90 dark:bg-slate-900/90 hover:bg-blue-600 hover:text-white border border-r-0 border-slate-300 dark:border-slate-700 rounded-l-md shadow-md text-slate-700 dark:text-slate-200 transition-all"
             title="Show Right Parameters Wall"
           >
             <ChevronLeft className="w-3.5 h-3.5" />

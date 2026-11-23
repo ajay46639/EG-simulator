@@ -370,7 +370,7 @@ export const ThreeViewport: React.FC<ThreeViewportProps> = ({
   const showPlanes = activeStep ? activeStep.showPlanes : true;
 
   return (
-    <div className="w-full h-full relative">
+    <div className="w-full h-full relative touch-none select-none">
       <Canvas shadows dpr={[1, 2]}>
         <color attach="background" args={[theme === 'dark' ? '#0b1120' : '#f1f5f9']} />
 

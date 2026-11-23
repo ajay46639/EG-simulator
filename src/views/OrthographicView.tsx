@@ -163,6 +163,11 @@ export const OrthographicView = forwardRef<SVGSVGElement, OrthographicViewProps>
       return `${currentU0} ${currentV0} ${currentW} ${currentH}`;
     }, [baseW, baseH, baseU0, baseV0, zoom, pan]);
 
+    // Touch & Gesture state refs
+    const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+    const touchDistRef = useRef<number | null>(null);
+    const lastTapRef = useRef<number>(0);
+
     // Mouse handlers for 2D pan & zoom
     const handleWheel = (e: React.WheelEvent) => {
       e.stopPropagation();
@@ -204,6 +209,56 @@ export const OrthographicView = forwardRef<SVGSVGElement, OrthographicViewProps>
 
     const handleMouseUp = () => setIsDragging(false);
 
+    // Touch Handlers for Mobile: 1-finger pan, 2-finger pinch-zoom, double-tap reset
+    const handleTouchStart = (e: React.TouchEvent) => {
+      if (e.touches.length === 1) {
+        const now = Date.now();
+        if (now - lastTapRef.current < 300) {
+          reset2DView();
+        }
+        lastTapRef.current = now;
+        touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        touchDistRef.current = null;
+        setIsDragging(true);
+      } else if (e.touches.length === 2) {
+        const d = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        touchDistRef.current = d;
+        touchStartRef.current = null;
+        setIsDragging(false);
+      }
+    };
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+      if (e.touches.length === 1 && touchStartRef.current && containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const currentW = baseW / zoom;
+        const currentH = baseH / zoom;
+        const dx = (e.touches[0].clientX - touchStartRef.current.x) * (currentW / rect.width);
+        const dy = (e.touches[0].clientY - touchStartRef.current.y) * (currentH / rect.height);
+        setPan((prev) => ({ x: prev.x - dx, y: prev.y - dy }));
+        touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      } else if (e.touches.length === 2 && touchDistRef.current !== null && touchDistRef.current > 0) {
+        const newDist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        if (newDist > 0) {
+          const factor = newDist / touchDistRef.current;
+          setZoom((prev) => Math.min(10, Math.max(0.2, prev * factor)));
+          touchDistRef.current = newDist;
+        }
+      }
+    };
+
+    const handleTouchEnd = () => {
+      touchStartRef.current = null;
+      touchDistRef.current = null;
+      setIsDragging(false);
+    };
+
     const handleDoubleClick = () => {
       setZoom(1);
       setPan({ x: 0, y: 0 });
@@ -225,11 +280,16 @@ export const OrthographicView = forwardRef<SVGSVGElement, OrthographicViewProps>
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchEnd}
         onMouseLeave={() => {
           setIsDragging(false);
           setCursorCoord(null);
         }}
         onDoubleClick={handleDoubleClick}
+        style={{ touchAction: 'none' }}
         className={`w-full h-full relative select-none overflow-hidden group ${
           isDragging ? 'cursor-grabbing' : 'cursor-grab'
         } ${theme === 'dark' ? 'cad-grid-dark' : 'cad-grid-light'}`}
@@ -391,38 +451,38 @@ export const OrthographicView = forwardRef<SVGSVGElement, OrthographicViewProps>
         </svg>
 
         {/* 2D Interactive Controls Pill (Bottom-Right) */}
-        <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-lg p-1 shadow-md opacity-80 group-hover:opacity-100 transition-opacity z-10 text-xs">
+        <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-lg p-1 sm:p-1 shadow-md opacity-90 group-hover:opacity-100 transition-opacity z-10 text-xs touch-manipulation">
           <button
             onClick={(e) => {
               e.stopPropagation();
               setZoom((prev) => Math.min(10, prev * 1.25));
             }}
-            className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
+            className="p-1.5 sm:p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 active:scale-95 transition-transform"
             title="Zoom In 2D"
           >
-            <ZoomIn className="w-3.5 h-3.5" />
+            <ZoomIn className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
           </button>
           <button
             onClick={(e) => {
               e.stopPropagation();
               setZoom((prev) => Math.max(0.2, prev * 0.8));
             }}
-            className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
+            className="p-1.5 sm:p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 active:scale-95 transition-transform"
             title="Zoom Out 2D"
           >
-            <ZoomOut className="w-3.5 h-3.5" />
+            <ZoomOut className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
           </button>
           <button
             onClick={(e) => {
               e.stopPropagation();
               reset2DView();
             }}
-            className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
+            className="p-1.5 sm:p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 active:scale-95 transition-transform"
             title="Reset Pan & Zoom (1:1)"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
+            <RotateCcw className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
           </button>
-          <span className="font-mono text-[10px] text-slate-500 dark:text-slate-400 px-1 border-l border-slate-200 dark:border-slate-700">
+          <span className="font-mono text-[10px] text-slate-500 dark:text-slate-400 px-1 border-l border-slate-200 dark:border-slate-700 select-none">
             {Math.round(zoom * 100)}%
           </span>
         </div>

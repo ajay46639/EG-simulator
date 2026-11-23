@@ -6,6 +6,7 @@ import {
   GitBranch,
   RotateCcw,
   Sliders,
+  X,
 } from 'lucide-react';
 import { useProjectStore } from '../state/useProjectStore';
 import {
@@ -93,6 +94,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({ selectedObj, solved 
     projectionSettings,
     updateProjectionSettings,
     updateHelperVisibility,
+    toggleRightSidebar,
   } = useProjectStore();
 
   const modes: Array<{ id: InputMode; label: string }> = [
@@ -129,7 +131,28 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({ selectedObj, solved 
     'px-1.5 py-1 rounded text-xs bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 outline-none text-slate-900 dark:text-slate-100';
 
   return (
-    <aside className="w-80 shrink-0 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col overflow-y-auto">
+    <>
+      {/* Mobile Drawer Backdrop */}
+      <div
+        className="md:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-xs transition-opacity"
+        onClick={toggleRightSidebar}
+      />
+
+      <aside className="fixed inset-y-0 right-0 z-50 w-[90vw] max-w-sm md:relative md:inset-auto md:z-0 md:w-80 shrink-0 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col overflow-y-auto select-none shadow-2xl md:shadow-none animate-in slide-in-from-right duration-200 md:animate-none">
+        {/* Mobile Drawer Header with Close Button */}
+        <div className="flex md:hidden items-center justify-between px-3 py-2.5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/80">
+          <span className="font-semibold text-xs text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+            <Sliders className="w-4 h-4 text-blue-500" />
+            Parameters & Settings Wall
+          </span>
+          <button
+            onClick={toggleRightSidebar}
+            className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-300"
+            title="Close Drawer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
       {/* Units & Mode */}
       <div className="p-3 border-b border-slate-200 dark:border-slate-800 space-y-2">
         <div className="flex items-center justify-between gap-2">
@@ -810,6 +833,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({ selectedObj, solved 
           </label>
         </div>
       </div>
-    </aside>
+      </aside>
+    </>
   );
 };

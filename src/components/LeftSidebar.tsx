@@ -10,6 +10,7 @@ import {
   Sparkles,
   Square,
   Trash2,
+  X,
 } from 'lucide-react';
 import { useProjectStore } from '../state/useProjectStore';
 import { ObjectCategory } from '../types/engineering';
@@ -26,6 +27,7 @@ export const LeftSidebar: React.FC = () => {
     loadPreset,
     exportProjectJSON,
     importProjectJSON,
+    toggleLeftSidebar,
   } = useProjectStore();
 
   const [savedKeys, setSavedKeys] = useState<string[]>(() => {
@@ -65,7 +67,28 @@ export const LeftSidebar: React.FC = () => {
   ];
 
   return (
-    <aside className="w-64 shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col overflow-y-auto select-none">
+    <>
+      {/* Mobile Drawer Backdrop */}
+      <div
+        className="md:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-xs transition-opacity"
+        onClick={toggleLeftSidebar}
+      />
+
+      <aside className="fixed inset-y-0 left-0 z-50 w-[85vw] max-w-xs md:relative md:inset-auto md:z-0 md:w-64 shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col overflow-y-auto select-none shadow-2xl md:shadow-none animate-in slide-in-from-left duration-200 md:animate-none">
+        {/* Mobile Drawer Header with Close Button */}
+        <div className="flex md:hidden items-center justify-between px-3 py-2.5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/80">
+          <span className="font-semibold text-xs text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+            <Layers className="w-4 h-4 text-blue-500" />
+            Scene & Features Wall
+          </span>
+          <button
+            onClick={toggleLeftSidebar}
+            className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-300"
+            title="Close Drawer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
       {/* Create Object / Object Library */}
       <div className="p-3 border-b border-slate-200 dark:border-slate-800">
         <h2 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
@@ -207,6 +230,7 @@ export const LeftSidebar: React.FC = () => {
           </div>
         )}
       </div>
-    </aside>
+      </aside>
+    </>
   );
 };
